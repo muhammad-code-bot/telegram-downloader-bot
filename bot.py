@@ -32,7 +32,17 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Uploading video...")
 
         with open(filename, 'rb') as video:
-            await update.message.reply_video(video)
+            caption = f"""
+✦ Downloaded Successfully
+
+🔗 Source:
+{url}
+"""
+
+await update.message.reply_video(
+    video,
+    caption=caption
+)
 
         os.remove(filename)
 
