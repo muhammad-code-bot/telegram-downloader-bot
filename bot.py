@@ -23,6 +23,7 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
         'format': 'best',
         'quiet': True
+        'cookiefile': 'x.com_cookies.txt'
     }
 
     try:
