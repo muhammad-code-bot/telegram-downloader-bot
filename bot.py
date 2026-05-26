@@ -17,11 +17,13 @@ os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text
 
-    await update.message.reply_text("Downloading video...")
+    loading = await update.message.reply_text("Downloading video...")
 
     ydl_opts = {
         'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
-        'format': 'best'
+        'format': 'best',
+        'quiet': True
+        'cookiefile': 'cookies.txt',
     }
 
     try:
@@ -29,25 +31,33 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
 
-        await update.message.reply_text("Uploading video...")
+        uploader = info.get("uploader", "Unknown")
+        title = info.get("title", "No caption")
 
         caption = f"""
-✦ Downloaded Successfully
+<blockquote>
+<b>{uploader}</b>
 
-🔗 Source:
-{url}
+{title}
+</blockquote>
+
+🔗 <a href="{url}">Source</a>
 """
 
         with open(filename, 'rb') as video:
             await update.message.reply_video(
                 video=video,
-                caption=caption
+                caption=caption,
+                parse_mode="HTML",
+                reply_to_message_id=update.message.message_id
             )
 
         os.remove(filename)
 
+        await loading.delete()
+
     except Exception as e:
-        await update.message.reply_text(f"Error:\n{e}")
+        await loading.edit_text(f"Error:\n{e}")
 
 app = ApplicationBuilder().token(TOKEN).build()
 
